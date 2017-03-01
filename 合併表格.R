@@ -12,5 +12,3 @@ head(mergetry)
 mergetry11<-dplyr::select(mergetry,name,year.x,department.x,id,lala,ability)
 attendlala<-dplyr::filter(mergetry11,lala==1)
 donotattend<-dplyr::filter(mergetry11,is.na(lala))
-
-
