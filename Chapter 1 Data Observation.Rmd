@@ -4,14 +4,25 @@ author: "Chen Lee"
 date: "2017/3/2"
 output:
   word_document: default
+  
+  
+  
 ---
+##研究動機
+近年來，啦啦隊的系際比賽在許多大學中都非常盛行，參與活動的同學又以每年的大一新生為大宗，這幾乎是各大學的第一個班級活動
+，在學長姐大力推薦下，每個對大學社團生活有憧憬的新鮮人而言，無不熱情參與，然而比賽一年比一年盛大，表演也越來越華麗、越來越精彩，同學們花在準備啦啦隊比賽的時間越來越多，常常練到很晚影響到最基本的課業，許多大一同學因為剛從比較嚴謹的高中學制到自由的大學，對於課外活動與學業的時間分配還不是很妥當，練習啦啦隊的疲憊，常常會導致同學在上課時精神較差，或甚至把必修課翹掉，大一的課程又是重要的基礎課程，與大二、大三之課程常常有連貫，經常可以看見的是大一的課程沒學好的同學，大二、大三想努力也很難銜接的上，研究者就讀臺北大學經濟學系碩士班，想了解啦啦隊比賽對學生的成績會如何影響，是否有參與啦啦隊的同學會在大一的必修科目上的成績表現較差，進而影響到四年的成績表現
+
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-## Data observation
+##資料觀察
+在學校的教務處中申請的資料包含了101學年度經濟系學生的入學名單、101學年度經濟系學生直到畢業的各科成績，體育組申請了101學年度經濟系的有參與啦啦隊活動的名單，將兩項資料做媒合，想找出有參加啦啦隊的同學以及沒參加啦啦隊的同學四年來的各項成績表現
+
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 rm(list=ls()) 
@@ -35,10 +46,15 @@ lala.na.location<-which(is.na(eco101$lala)) #lala為NA的資料位置
 eco101[lala.na.location,c('lala')]<-0
 ```
 
+
+
+
 ```{r}
 #樣本個數觀察
 table(eco101$lala)
 ```
+
+
 
 ```{r, message=FALSE, warning=FALSE}
 #合併能力與平圴成績
@@ -49,11 +65,10 @@ eco101<-left_join(eco101,irt.out2,by='ID')
 eco101$lala<-as.logical(eco101$lala)
 ```
 
-觀察到有7位些沒lala的人，沒念完，所以無能力與成績資料，有可能在準備轉學。
 
-In our sample, there are xxx students in lala, and yyyy not in lala.
 
-First, we look at the gpa difference across two groups
+資料整併後可以觀察到有7位同學沒念完，所以無能力與成績資料，有可能在準備轉學或是休學重考等等。101學年度經濟系沒有參加啦啦隊的人數為117人，有參加啦啦隊的人數為27人，首先我們可以先觀察這兩群樣本的四年平均成績的差異可以得到下圖
+
 
 ```{r, message=FALSE, warning=FALSE}
 # 圖： 平均成績與lala
@@ -65,7 +80,9 @@ eco101 %>% ggplot(aes(x=lala,y=cum.gpa))+
   ylab('平均成績')
 ```
 
-Second graph is the difference based on extracted ability.
+
+第二個圖是看兩個樣本群在萃取出的能力值上的差異
+
 
 ```{r, message=FALSE, warning=FALSE}
 eco101 %>% ggplot(aes(x=lala,y=ab))+
@@ -79,6 +96,75 @@ eco101 %>% ggplot(aes(x=lala,y=ab))+
 參加啦啦成績離散度小，是因為變好朋友學習方法相近？
 
 ## 啦啦對於經原
+因為經濟系的基礎為大一的經濟學原理，本系的學生若在大一上被當掉經原，會在大二時擋修個體經濟學，倘若在大一下被當掉經原，會在大二時擋修總體經濟學，故大一的經濟學原理被當與否對本系學生未來的修課選擇會有重大影響，甚至四年的平均成績，經濟能力都會受之影響故在資料中先找出大一上經原被當的同學以及大一下經原被當的同學，看看他們四年的成績表現差異
+
+```{r,message=FALSE,warning=FALSE}
+load("~/Dropbox/Data/transcript.Rdata")
+
+colnames(transcript.data)[1]<-'ID'
+pecon.track<-c()
+for(i in 1:dim(eco101)[1]){
+  #print(i)
+  #i<-10
+  id.i<-eco101[i,c('ID')]
+  # 抽出學號為id.i的學生成績單
+  transcript.i <- filter(transcript.data,ID==as.integer(id.i))
+  # 判斷是否經原被當
+  # 只看100學年上學期且課程名稱為 經濟學原理
+  transcript.i %>%  filter(學年==100,學期==1,科目名稱=='經濟學原理') -> econ101.1.i
+  pecon.1.flunk.i<- ifelse( (dim(econ101.1.i)[1]!=0), # 若此條件成立
+                            (econ101.1.i$成績<60)*1, #成立時執行
+                            NA) #不成立時執行
+  # 只看100學年下學期且課程名稱為 經濟學原理
+  transcript.i %>%  filter(學年==100,學期==2,科目名稱=='經濟學原理') -> econ101.2.i
+  pecon.2.flunk.i<- ifelse( (dim(econ101.2.i)[1]!=0), # 若此條件成立
+                            (econ101.2.i$成績<60)*1, #成立時執行
+                            NA) #不成立時執行
+  pecon.track<-rbind(pecon.track,c(id.i, pecon.1.flunk.i,pecon.2.flunk.i))
+}
+
+pecon.track2<-pecon.track
+unlist(pecon.track2)->pecon.track2 #資料變成一串數字，非144x3的陣列
+pecon.track2<-matrix(pecon.track2,144,3) #一串數字轉成144x3的矩陣
+pecon.track2<-as.data.frame(pecon.track2) #矩陣改成data frame
+colnames(pecon.track2)<-c('ID','經原上當','經原下當') 
+
+
+pecon.track2.2<-full_join(eco101,pecon.track2,by='ID')
+pecon.track2.2$經原上當<-as.logical(pecon.track2.2$經原上當)
+pecon.track2.2$經原下當<-as.logical(pecon.track2.2$經原下當)
+
+
+```
+
+下圖是101學年經原上被當與否的四年平均成績差異，可以發現經原上被當的同學之四年成績比沒被當的低很多
+
+```{r,message=FALSE,warning=FALSE}
+
+pecon.track2.2 %>% ggplot(aes(x=經原上當,y=cum.gpa))+
+  geom_boxplot()+
+  ggtitle('經原上有無被當學生能力分佈')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('經原上被當')+
+  ylab('平均成績')
+
+```
+
+下圖為101學年經原下被當與否的四年平均成績差異，也可以發現經原下被當的同學之四年成績比沒被當的低很多
+
+```{r,message=FALSE,warning=FALSE}
+pecon.track2.2 %>% ggplot(aes(x=經原下當,y=cum.gpa))+
+  geom_boxplot()+
+  ggtitle('經原下有無被當學生能力分佈')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('經原下被當')+
+  ylab('平均成績')
+
+
+```
+
+
+
 是否參加啦啦經原比較會被當？不同學年入學學生的反應是否有明顯不同？
 
 
