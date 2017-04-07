@@ -1,0 +1,32 @@
+---
+title: "圖練習.R"
+output: html_notebook
+---
+使用paste(getwd(),"/ eco100.rds",sep="") 來設定萬用路徑
+```{r}
+rm(list=ls()) 
+load(paste(getwd(),"/ eco100.rds",sep=""))
+library(dplyr)
+library(ggplot2)
+```
+
+資料economy100 
+```{r}
+economy100 %>% group_by(lala) %>% #依lala分群
+  summarise(mean_grade.1=mean(gpa.1,na.rm=TRUE), #計算以下的mean特徵值
+            mean_grade.2=mean(gpa.2,na.rm=TRUE),
+            mean_grade.3=mean(gpa.3,na.rm=TRUE),
+            mean_grade.4=mean(gpa.4,na.rm=TRUE)) %>% 
+  gather(grade,mean_grade,-lala) -> mean.across.grades #把橫向格式轉成直向
+
+```
+
+格式做成什麼格式，通常是先想要畫什麼圖。
+x間斷－y連續：geom_bar(stat="identity")
+又要使用lala分類：geom_bar(position="dodge")
+```{r}
+mean.across.grades$lala<-as.logical(mean.across.grades$lala)
+mean.across.grades %>% ggplot(aes(x=grade,y=mean_grade, fill=lala)) +
+  geom_bar(stat="identity",position='dodge') 
+```
+
