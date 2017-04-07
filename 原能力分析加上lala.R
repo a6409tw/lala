@@ -3,6 +3,9 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(readxl)
+working.path<-"~/Dropbox/lala/"
+
+save.data<-paste(working.path,'eco101.rds')
 #####################################################################
 load("~/Dropbox/Data/ student ability.Rdata")
 
@@ -18,6 +21,10 @@ eco101<-dplyr::filter(mergeeco,substring(mergeeco$ID,2,4)=="100")
 lala.na.location<-which(is.na(eco101$lala)) #lala為NA的資料位置
 eco101[lala.na.location,c('lala')]<-0
 
+eco101<-filter(eco101,ID!=410073195)
+eco101<-filter(eco101,ID!=410073196)
+eco101<-filter(eco101,ID!=410073197)
+save(eco101,file=save.data)
 #樣本個數觀察
 table(eco101$lala)
 
