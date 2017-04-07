@@ -1,6 +1,7 @@
 rm(list=ls()) 
 load("~/Dropbox/lala/ eco100.rds")
-
+library(dplyr)
+library(ggplot2)
 lala<-filter(economy100,lala==1)
 notlala<-filter(economy100,lala!=1)
 x1<-mean(lala$gpa.1,na.rm = TRUE)
@@ -16,5 +17,4 @@ ttt<-as.data.frame(ttt)
 
 colnames(ttt)<-c("grade","gpa","lala")
 ttt$lala<-as.logical(ttt$lala)
-ttt %>% ggplot(aes(x=grade,y=gpa,fill=lala)) + geom_line() ->p
-p
+ggplot(ttt, aes(x = grade, y = gpa, colour = lala)) + geom_line()
