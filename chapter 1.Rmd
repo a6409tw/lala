@@ -1,72 +1,79 @@
 ---
-title: "Untitled"
+title: "DATA observation"
 author: "Chen Lee"
 date: "2017/3/22"
 output: word_document
 ---
 ##研究動機 
-test
 近年來，啦啦隊的系際比賽在許多大學中都非常盛行，參與活動的同學又以每年的大一新生為大宗，這幾乎是各大學的第一個班級活動
-，在學長姐大力推薦下，每個對大學社團生活有憧憬的新鮮人而言，無不熱情參與，然而比賽一年比一年盛大，表演也越來越華麗、越來越精彩，同學們花在準備啦啦隊比賽的時間越來越多，常常練到很晚影響到最基本的課業，許多大一同學因為剛從比較嚴謹的高中學制到自由的大學，對於課外活動與學業的時間分配還不是很妥當，練習啦啦隊的疲憊，常常會導致同學在上課時精神較差，或甚至把必修課翹掉，大一的課程又是重要的基礎課程，與大二、大三之課程常常有連貫，經常可以看見的是大一的課程沒學好的同學，大二、大三想努力也很難銜接的上，研究者就讀臺北大學經濟學系碩士班，想了解啦啦隊比賽對學生的成績會如何影響，是否有參與啦啦隊的同學會在大一的必修科目上的成績表現較差，進而影響到四年的成績表現
-
-
-
-
+，在學長姐大力推薦下，每個對大學社團生活有憧憬的新鮮人而言，無不熱情爭取參與機會，然而比賽一年比一年盛大，表演也越來越華麗、越來越精彩，同學們花在準備啦啦隊比賽的時間越來越多，常常練習到很晚，影響到最基本的課業，許多大一同學因為剛從比較嚴謹的高中學制到自由的大學，對於課外活動與學業的時間分配還不是很妥當，加上練習啦啦隊的疲憊，常常會導致同學在上課時精神較差，或甚至把必修課程翹掉，大一的課程又是重要的基礎課程，與大二、大三之課程常常有連貫，經常可以看見的是大一的課程沒學好的同學，大二、大三想努力也很難銜接的上，研究者就讀臺北大學經濟學系碩士班，想了解啦啦隊比賽對學生的成績會如何影響，是否有參與啦啦隊的同學會在大一的必修科目上的成績表現較差，進而影響到四年的成績表現
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
-
-
 ##資料觀察
-在學校的教務處中申請的資料包含了100學年度經濟系學生的入學名單、100學年度經濟系學生直到畢業的各科成績，體育組申請了100學年度經濟系的有參與啦啦隊活動的名單，將兩項資料做媒合，想找出有參加啦啦隊的同學以及沒參加啦啦隊的同學四年來的各項成績表現
+在學校的體育室活動組中申請了參加啦啦隊的名單，活動組的資料只有近期的且不甚完整，資料僅包含了100學年度、102學年度、103學年度，另外在教務處申請了100學年到104學年的學籍資料、成績資料、住址資料、學測成績，首先，將各項資料做媒合，想找出有參加啦啦隊的同學以及沒參加啦啦隊的同學的各項成績表現。
 
 
+首先，由於啦啦隊名單只有姓名，先整合啦啦隊名單和學籍資料，讓資料有學號、姓名、啦啦隊參加與否。
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 rm(list=ls()) 
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(readxl)
-#載入學生能力資料
+working.path<-"~/Dropbox/lala/"
+save.data<-paste(working.path,'eco100.rds')
+#load student ability data
 load("~/Dropbox/Data/ student ability.Rdata")
-#學籍資料
+#load registration data
 load("~/Dropbox/Data/registration.Rdata")
-#載入啦啦隊名單
-lala101<- read_excel("~/Dropbox/lala/lala101.xlsx")
-#抽取學籍資料的姓名欄位以及學號欄位
-regisdata2<-registration.data[,c('學號','10101中文姓名')]
-colnames(regisdata2)<-c('ID','name')
-
-mergeeco<-full_join(regisdata2,lala101,by='name')
-eco101<-dplyr::filter(mergeeco,substring(mergeeco$ID,2,4)=="100")
-lala.na.location<-which(is.na(eco101$lala)) #lala為NA的資料位置
-eco101[lala.na.location,c('lala')]<-0
+#load lala data
+lala100<- read_excel("~/Dropbox/lala/100lalaecon.xlsx")
+#留下學號及中文姓名
+regisdata100<-registration.data[,c('學號','10001中文姓名')]
+#留下100學年入學的同學姓名與學號
+regisdata100<-dplyr::filter(regisdata100,substring(regisdata100$學號,2,4)=="100")
+#rename
+colnames(regisdata100)<-c("ID","name")
+merge100<-full_join(regisdata100,lala100,by="name")
+merge100<-filter(merge100,merge100$ID!="NA")
+lala.na.location<-which(is.na(merge100$lala))
+merge100[lala.na.location,c('lala')]<-0
 ```
+
+先初步觀察經濟系有144個100學年的學號，有參加啦啦隊的人數為27人，沒參加啦啦隊的人為117人。
 
 ```{r}
 #樣本個數觀察
-table(eco101$lala)
+table(merge100$lala)
 ```
 
+
+再來將資料與累積gpa以及萃取的能力資料做整併，其中資料中發現
+410073010、410073042、410073132同學只有大一成績，有可能是轉學(可能刪除3位)
+410073073、410073115、410073121、410073123、410073124、410073125、410073131，七位同學沒有任何成績，有可能是重考(可能刪除7位)
+410073100在100學年只有上學期成績，之後成績完整，有可能是休學半年
+410073133、410073134、410073195、410073196、410073197、410073198、410073199只有101年後的成績，可能為大二才轉來北大經濟的同學(可能刪除7位)
+資料編號139到144為外系來雙主修或著選修(可能刪除6位)
+可能總共需要刪除23筆資料，皆為沒參加啦啦隊的同學
 
 
 ```{r, message=FALSE, warning=FALSE}
 #合併能力與平圴成績
-eco101<-left_join(eco101,irt.out2,by='ID')
+eco100<-left_join(merge100,irt.out2,by='ID')
 
 #  觀察到有些沒lala的人，沒念完，所以無能力與成績資料，有可能在準備轉學。
 
-eco101$lala<-as.logical(eco101$lala)
+eco100$lala<-as.logical(eco100$lala)
 ```
 
 
-
-資料整併後可以觀察到有7位同學沒念完，所以無能力與成績資料，有可能在準備轉學或是休學重考等等。101學年度經濟系沒有參加啦啦隊的人數為117人，有參加啦啦隊的人數為27人，首先我們可以先觀察這兩群樣本的四年平均成績的差異可以得到下圖
+首先我們可以先將100年度的學生以是否參加啦啦隊作為分成兩群，觀察這兩群樣本的四年平均成績的差異可以得到下圖，原本的想法是有參加啦啦隊的同學會因為忙於課外活動，導致花比較少心思在課程中，理當使得成績有比較差的表現，但卻發現有參加啦啦隊的平均成績卻是較高的，與我最初的想法相左，看到這樣的結果，最直接的想法是參加啦啦隊後，會使得大家感情變好，一起唸書、一起討論，成績反而因此更好了，又或者可能原本就是成績不錯的同學，因為可以兼顧課外活動，而選擇參加啦啦隊，再者可以看到有參加啦啦隊的平均成績離散度較小，這也是會令人想到可能他們的讀書方法相近。
 
 
 ```{r, message=FALSE, warning=FALSE}
 # 圖： 平均成績與lala
-eco101 %>% ggplot(aes(x=lala,y=cum.gpa))+
+eco100 %>% ggplot(aes(x=lala,y=cum.gpa))+
   geom_boxplot()+
   ggtitle('有無參加lala學生能力分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
@@ -75,11 +82,11 @@ eco101 %>% ggplot(aes(x=lala,y=cum.gpa))+
 ```
 
 
-第二個圖是看兩個樣本群在萃取出的能力值上的差異
+第二個圖是看兩個樣本群在萃取出的能力值上的差異，基本上的結果和平均成績是相似的，也是有參加啦啦隊的同學平均較高，沒參加啦啦隊的同學離散程度較大。
 
 
 ```{r, message=FALSE, warning=FALSE}
-eco101 %>% ggplot(aes(x=lala,y=ab))+
+eco100 %>% ggplot(aes(x=lala,y=ab))+
   geom_boxplot()+
   ggtitle('有無參加lala學生能力分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
@@ -87,20 +94,21 @@ eco101 %>% ggplot(aes(x=lala,y=ab))+
   ylab('經濟專業能力')
 ```
 
-參加啦啦成績離散度小，是因為變好朋友學習方法相近？
-
 ## 啦啦對於經原
-因為經濟系的基礎為大一的經濟學原理，本系的學生若在大一上被當掉經原，會在大二時擋修個體經濟學，倘若在大一下被當掉經原，會在大二時擋修總體經濟學，故大一的經濟學原理被當與否對本系學生未來的修課選擇會有重大影響，甚至四年的平均成績，經濟能力都會受之影響故在資料中先找出大一上經原被當的同學以及大一下經原被當的同學，看看他們四年的成績表現差異
+因為經濟系的基礎為大一的經濟學原理，本系的學生若在大一上被當掉經原，會在大二時擋修個體經濟學，倘若在大一下被當掉經原，會在大二時擋修總體經濟學，故大一的經濟學原理被當與否對本系學生未來的修課選擇會有重大影響，甚至四年的平均成績，經濟能力都會受之影響故在資料中先找出大一上經原被當的同學以及大一下經原被當的同學，看看他們四年的成績表現差異。
+
+從資料中可以發現上學期有五個同學經原被當但他們都沒參加啦啦隊，也就是說參加啦啦隊的同學沒有任何人上學期的經原被當掉，上學期有十二個同學經原被當，其中有兩個被當的同學有參加啦啦隊
 
 ```{r,message=FALSE,warning=FALSE}
+#先從原始成績找出經原上被當的同學，經原下被當的同學與原本的資料做合併
 load("~/Dropbox/Data/transcript.Rdata")
 
 colnames(transcript.data)[1]<-'ID'
 pecon.track<-c()
-for(i in 1:dim(eco101)[1]){
+for(i in 1:dim(eco100)[1]){
   #print(i)
   #i<-10
-  id.i<-eco101[i,c('ID')]
+  id.i<-eco100[i,c('ID')]
   # 抽出學號為id.i的學生成績單
   transcript.i <- filter(transcript.data,ID==as.integer(id.i))
   # 判斷是否經原被當
@@ -123,19 +131,16 @@ pecon.track2<-matrix(pecon.track2,144,3) #一串數字轉成144x3的矩陣
 pecon.track2<-as.data.frame(pecon.track2) #矩陣改成data frame
 colnames(pecon.track2)<-c('ID','經原上當','經原下當') 
 
-
-pecon.track2.2<-full_join(eco101,pecon.track2,by='ID')
-pecon.track2.2$經原上當<-as.logical(pecon.track2.2$經原上當)
-pecon.track2.2$經原下當<-as.logical(pecon.track2.2$經原下當)
-
-
+eco100<-full_join(eco100,pecon.track2,by='ID')
+eco100$經原上當<-as.logical(eco100$經原上當)
+eco100$經原下當<-as.logical(eco100$經原下當)
 ```
 
-下圖是101學年經原上被當與否的四年平均成績差異，可以發現經原上被當的同學之四年成績比沒被當的低很多
+下圖是100學年經原上被當與否的四年平均成績差異，可以發現經原上被當的同學之四年成績比沒被當的低很多，且被當掉的同學成績離散程度很大。
 
 ```{r,message=FALSE,warning=FALSE}
 
-pecon.track2.2 %>% ggplot(aes(x=經原上當,y=cum.gpa))+
+eco100 %>% ggplot(aes(x=經原上當,y=cum.gpa))+
   geom_boxplot()+
   ggtitle('經原上有無被當學生能力分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
@@ -144,10 +149,10 @@ pecon.track2.2 %>% ggplot(aes(x=經原上當,y=cum.gpa))+
 
 ```
 
-下圖為101學年經原下被當與否的四年平均成績差異，也可以發現經原下被當的同學之四年成績比沒被當的低很多
+下圖為100學年經原下被當與否的四年平均成績差異，也可以發現經原下被當的同學之四年成績比沒被當的低很多，但成績離散程度與沒被當的同學差不多。
 
 ```{r,message=FALSE,warning=FALSE}
-pecon.track2.2 %>% ggplot(aes(x=經原下當,y=cum.gpa))+
+eco100 %>% ggplot(aes(x=經原下當,y=cum.gpa))+
   geom_boxplot()+
   ggtitle('經原下有無被當學生能力分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
@@ -159,22 +164,60 @@ pecon.track2.2 %>% ggplot(aes(x=經原下當,y=cum.gpa))+
 
 
 是否參加啦啦經原比較會被當？不同學年入學學生的反應是否有明顯不同？
+
+先把102年、103年、104年參加啦啦隊的資料和學號做對照合併，在找出三年中經原上被當的同學，經原下被當的同學
+
 ```{r,message=FALSE,warning=FALSE}
 econ102_104<-read_excel("~/dropbox/lala/econ102_104.xlsx")
-
-load("~/dropbox/Data/ student ability.Rdata")
 load("~/Dropbox/Data/registration.Rdata")
 regisdataecon<-registration.data[,c('學號','10402中文姓名')]
 colnames(regisdataecon)<-c('ID','name')
 merge1111<-full_join(regisdataecon,econ102_104,by='name')
-
+#把不符合年度的同學塞掉
 dplyr::filter(merge1111,substring(merge1111$ID,2,4)!="100")->mergeecon
 dplyr::filter(mergeecon,substring(mergeecon$ID,2,4)!="101")->mergeecon
 dplyr::filter(mergeecon,substring(mergeecon$ID,2,3)!="98")->mergeecon
-dplyr::filter(mergeecon,substring(mergeecon$ID,2,3)!="99")->mergeecon
+dplyr::filter(mergeecon,substring(mergeecon$ID,2,3)!="97")->mergeecon
+dplyr::filter(mergeecon,substring(mergeecon$ID,2,3)!="99")->econlala102_104
+pecon.track102<-c()
+for(i in 1:dim(econlala102_104)[1]){
+  #print(i)
+  #i<-10
+  id.i<-econlala102_104[i,c('ID')]
+  # 抽出學號為id.i的學生成績單
 
-econlala<-left_join(mergeecon,irt.out2,by='ID')
+  transcript.i <- filter(transcript.data,ID==as.integer(id.i))
+  # 判斷是否經原被當
+  # 只看100學年上學期且課程名稱為 經濟學原理
+  transcript.i %>%  filter(學期==1,科目名稱=='經濟學原理') -> econ101.1.i
+  pecon.1.flunk.i<- ifelse( (dim(econ101.1.i)[1]!=0), # 若此條件成立
+                            (econ101.1.i$成績<60)*1, #成立時執行
+                            NA) #不成立時執行
+  # 只看100學年下學期且課程名稱為 經濟學原理
+  transcript.i %>%  filter(學期==2,科目名稱=='經濟學原理') -> econ101.2.i
+  pecon.2.flunk.i<- ifelse( (dim(econ101.2.i)[1]!=0), # 若此條件成立
+                            (econ101.2.i$成績<60)*1, #成立時執行
+                            NA) #不成立時執行
+  pecon.track102<-rbind(pecon.track102,c(id.i, pecon.1.flunk.i,pecon.2.flunk.i))
+}
 
+pecon.track22<-pecon.track102
+unlist(pecon.track22)->pecon.track22 #資料變成一串數字，非144x3的陣列
+pecon.track22<-matrix(pecon.track22,414,3) #一串數字轉成144x3的矩陣
+pecon.track22<-as.data.frame(pecon.track22) #矩陣改成data frame
+colnames(pecon.track22)<-c('ID','經原上當','經原下當') 
+
+eco102_104<-full_join(econlala102_104,pecon.track22,by='ID')
+eco102_104$經原上當<-as.logical(eco102_104$經原上當)
+eco102_104$經原下當<-as.logical(eco102_104$經原下當)
+
+```
+
+
+以現有的成績計算102年、103年、104年三年的成績gpa
+
+
+```{r,message=FALSE,warning=FALSE}
 load("~/Dropbox/Data/transcript.Rdata")
 econ.subject<-c("金融市場（一）",
                 "金融市場（二）",
@@ -264,10 +307,10 @@ x<-dataeconomy$學分數*dataeconomy$成績
 mutate(dataeconomy,加權=x)->dataeconomy
 
 gpa.track<-c()
-for(i in 1:415){
+for(i in 1:414){
   #print(i)
   #i<-1
-  id.i<-econlala[i,c('ID')]
+  id.i<-eco102_104[i,c('ID')]
   # 抽出學號為id.i的學生成績單
   data.i <- filter(dataeconomy,學號==as.integer(id.i))
 
@@ -279,12 +322,12 @@ gpa.track<-rbind(gpa.track,c(id.i,gpa.i))
 
 gpa.track2<-gpa.track
 unlist(gpa.track2)->gpa.track2 #資料變成一串數字，非144x3的陣列
-gpa.track2<-matrix(gpa.track2,415,2) #一串數字轉成144x3的矩陣
+gpa.track2<-matrix(gpa.track2,414,2) #一串數字轉成144x3的矩陣
 gpa.track2<-as.data.frame(gpa.track2) #矩陣改成data frame
 colnames(gpa.track2)<-c('ID','gpa') 
 #table(gpa.track2[,2]) #查看狀態
 
-gpa.102_104<-full_join(econlala,gpa.track2,by='ID')
+gpa.102_104<-full_join(eco102_104,gpa.track2,by='ID')
 gpa.102_104$lala[is.na(gpa.102_104$lala)]<-0
 gpa.102_104$lala<-as.logical(gpa.102_104$lala)
 gpa102<-dplyr::filter(gpa.102_104,substring(gpa.102_104$ID,2,4)=="102")
@@ -294,11 +337,12 @@ gpa104<-dplyr::filter(gpa.102_104,substring(gpa.102_104$ID,2,4)=="104")
 
 ```
 
-102學年度，參加啦啦隊與否的平均成績狀況
+102學年度，參加啦啦隊與否的平均成績狀況，有參加啦啦隊的平均成績較高，離散程度較小
+
 ```{r,message=FALSE,warning=FALSE}
 gpa102 %>% ggplot(aes(x=lala,y=gpa))+
   geom_boxplot()+
-  ggtitle('102有無參加lala學生能力分佈')+
+  ggtitle('102有無參加lala學生成績分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('lala')+
   ylab('平均成績')
@@ -306,13 +350,13 @@ gpa102 %>% ggplot(aes(x=lala,y=gpa))+
 
 
 
-103學年度，參加啦啦隊與否的平均成績狀況
+103學年度，參加啦啦隊與否的平均成績狀況，有參加啦啦隊的平均成績較高，離散程度較小
 
 
 ```{r,message=FALSE,warning=FALSE}
 gpa103 %>% ggplot(aes(x=lala,y=gpa))+
   geom_boxplot()+
-  ggtitle('103有無參加lala學生能力分佈')+
+  ggtitle('103有無參加lala學生成績分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('lala')+
   ylab('平均成績')
@@ -324,29 +368,53 @@ gpa103 %>% ggplot(aes(x=lala,y=gpa))+
 ```{r,message=FALSE,warning=FALSE}
 gpa104 %>% ggplot(aes(x=lala,y=gpa))+
   geom_boxplot()+
-  ggtitle('104有無參加lala學生能力分佈')+
+  ggtitle('104有無參加lala學生成績分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('lala')+
   ylab('平均成績')
 
 ```
+102學年度經原上被當與否，如何影響之後的成績，102年度有22個同學經原上被當，其中有9個同學有參加啦啦隊
 
-101年度只看大一成績
+
+```{r,message=FALSE,warning=FALSE}
+gpa102 %>% ggplot(aes(x=經原上當,y=gpa))+
+  geom_boxplot()+
+  ggtitle('102有無參加lala學生成績分佈')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('經原上當')+
+  ylab('平均成績')
+```
+103學年度經原上被當與否，如何影響之後的成績，有28個同學經原上被當，有13個同學有參加啦啦隊
+
+```{r,message=FALSE,warning=FALSE}
+gpa103 %>% ggplot(aes(x=經原上當,y=gpa))+
+  geom_boxplot()+
+  ggtitle('103有無參加lala學生成績分佈')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('經原上當')+
+  ylab('平均成績')
+```
+104學年度經原上被當與否，如何影響之後的成績，有11個同學經原上被當，有8個同學有參加啦啦隊
+可以發現參加啦啦隊與經原被當兩者的關係，逐年變得密切
+
+ 
+```{r,message=FALSE,warning=FALSE}
+gpa104 %>% ggplot(aes(x=經原上當,y=gpa))+
+  geom_boxplot()+
+  ggtitle('104有無參加lala學生成績分佈')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('經原上當')+
+  ylab('平均成績')
+```
+100年度只看大一成績
+
 ```{r,message=FALSE,warning=FALSE}
 
 load("~/Dropbox/Data/ student ability.Rdata")
 
 load("~/Dropbox/Data/registration.Rdata")
-#載入啦啦隊名單
-lala101<- read_excel("~/Dropbox/lala/lala101.xlsx")
 
-regisdata2<-registration.data[,c('學號','10101中文姓名')]
-colnames(regisdata2)<-c('ID','name')
-
-mergeeco<-full_join(regisdata2,lala101,by='name')
-eco101<-dplyr::filter(mergeeco,substring(mergeeco$ID,2,4)=="100")
-lala.na.location<-which(is.na(eco101$lala)) #lala為NA的資料位置
-eco101[lala.na.location,c('lala')]<-0
 load("~/Dropbox/Data/transcript.Rdata")
 
 library(dplyr)
@@ -356,12 +424,12 @@ x1<-dataeconomy$學分數*dataeconomy$成績
 mutate(dataeconomy,加權=x1)->dataeconomy
 only100<-dplyr::filter(dataeconomy,dataeconomy$學年=="100")
 library(readr)
-load("~/Dropbox/lala/ eco101.rds")
+load("~/Dropbox/lala/ eco100.rds")
 gpa.track100<-c()
 for(i in 1:144){
   #print(i)
   #i<-1
-  id.i<-eco101[i,c('ID')]
+  id.i<-eco100[i,c('ID')]
   # 抽出學號為id.i的學生成績單
   data.i <- filter(only100,學號==as.integer(id.i))
   
@@ -373,12 +441,12 @@ for(i in 1:144){
 unlist(gpa.track100)->gpa.track100 #資料變成一串數字，非144x3的陣列
 gpa.track100<-matrix(gpa.track100,144,2) #一串數字轉成144x3的矩陣
 gpa.track100<-as.data.frame(gpa.track100) #矩陣改成data frame
-colnames(gpa.track100)<-c('ID','gpa') 
-gpa.100<-full_join(eco101,gpa.track100,by='ID')
-gpa.100$lala<-as.logical(gpa.100$lala)
-gpa.100 %>% ggplot(aes(x=lala,y=gpa))+
+colnames(gpa.track100)<-c('ID','gpa.1') 
+eco100<-full_join(eco100,gpa.track100,by='ID')
+
+eco100 %>% ggplot(aes(x=lala,y=gpa.1))+
   geom_boxplot()+
-  ggtitle('101有無參加lala學生能力分佈只看大一成績')+
+  ggtitle('100年度有無參加lala學生能力分佈只看大一成績')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('lala')+
   ylab('大一平均成績')
@@ -388,13 +456,13 @@ gpa.100 %>% ggplot(aes(x=lala,y=gpa))+
 ```{r,message=FALSE,warning=FALSE}
 only101<-dplyr::filter(dataeconomy,dataeconomy$學年=="101")
 library(readr)
-load("~/Dropbox/lala/ eco101.rds")
+load("~/Dropbox/lala/ eco100.rds")
 
 gpa.track101<-c()
 for(i in 1:144){
   #print(i)
   #i<-1
-  id.i<-eco101[i,c('ID')]
+  id.i<-eco100[i,c('ID')]
   # 抽出學號為id.i的學生成績單
   data.i <- filter(only101,學號==as.integer(id.i))
   
@@ -406,10 +474,10 @@ for(i in 1:144){
 unlist(gpa.track101)->gpa.track101 #資料變成一串數字，非144x3的陣列
 gpa.track101<-matrix(gpa.track101,144,2) #一串數字轉成144x3的矩陣
 gpa.track101<-as.data.frame(gpa.track101) #矩陣改成data frame
-colnames(gpa.track101)<-c('ID','gpa') 
-gpa.101<-full_join(eco101,gpa.track101,by='ID')
-gpa.101$lala<-as.logical(gpa.101$lala)
-gpa.101 %>% ggplot(aes(x=lala,y=gpa))+
+colnames(gpa.track101)<-c('ID','gpa.2') 
+eco100<-full_join(eco100,gpa.track101,by='ID')
+
+eco100 %>% ggplot(aes(x=lala,y=gpa.2))+
   geom_boxplot()+
   ggtitle('101有無參加lala學生能力分佈只看大二成績')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
@@ -429,7 +497,7 @@ gpa.track102<-c()
 for(i in 1:144){
   #print(i)
   #i<-1
-  id.i<-eco101[i,c('ID')]
+  id.i<-eco100[i,c('ID')]
   # 抽出學號為id.i的學生成績單
   data.i <- filter(only102,學號==as.integer(id.i))
   
@@ -441,10 +509,10 @@ for(i in 1:144){
 unlist(gpa.track102)->gpa.track102 #資料變成一串數字，非144x3的陣列
 gpa.track102<-matrix(gpa.track102,144,2) #一串數字轉成144x3的矩陣
 gpa.track102<-as.data.frame(gpa.track102) #矩陣改成data frame
-colnames(gpa.track102)<-c('ID','gpa') 
-gpa.102<-full_join(eco101,gpa.track102,by='ID')
-gpa.102$lala<-as.logical(gpa.102$lala)
-gpa.102 %>% ggplot(aes(x=lala,y=gpa))+
+colnames(gpa.track102)<-c('ID','gpa.3') 
+eco100<-full_join(eco100,gpa.track102,by='ID')
+
+eco100 %>% ggplot(aes(x=lala,y=gpa.3))+
   geom_boxplot()+
   ggtitle('101有無參加lala學生能力分佈只看大三成績')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
@@ -462,7 +530,7 @@ gpa.track103<-c()
 for(i in 1:144){
   #print(i)
   #i<-1
-  id.i<-eco101[i,c('ID')]
+  id.i<-eco100[i,c('ID')]
   # 抽出學號為id.i的學生成績單
   data.i <- filter(only103,學號==as.integer(id.i))
   
@@ -474,10 +542,9 @@ for(i in 1:144){
 unlist(gpa.track103)->gpa.track103 #資料變成一串數字，非144x3的陣列
 gpa.track103<-matrix(gpa.track103,144,2) #一串數字轉成144x3的矩陣
 gpa.track103<-as.data.frame(gpa.track103) #矩陣改成data frame
-colnames(gpa.track103)<-c('ID','gpa') 
-gpa.103<-full_join(eco101,gpa.track103,by='ID')
-gpa.103$lala<-as.logical(gpa.103$lala)
-gpa.103 %>% ggplot(aes(x=lala,y=gpa))+
+colnames(gpa.track103)<-c('ID','gpa.4') 
+eco100<-full_join(eco100,gpa.track103,by='ID')
+eco100 %>% ggplot(aes(x=lala,y=gpa.4))+
   geom_boxplot()+
   ggtitle('101有無參加lala學生能力分佈只看大四成績')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
@@ -485,29 +552,75 @@ gpa.103 %>% ggplot(aes(x=lala,y=gpa))+
   ylab('大四平均成績')
 
 ```
-```{r}
-load("~/Dropbox/lala/ eco100.rds")
-library(dplyr)
-library(ggplot2)
-lala<-filter(economy100,lala==1)
-notlala<-filter(economy100,lala!=1)
-x1<-mean(lala$gpa.1,na.rm = TRUE)
-x2<-mean(notlala$gpa.1,na.rm = TRUE)
-x3<-mean(lala$gpa.2,na.rm = TRUE)
-x4<-mean(notlala$gpa.2,na.rm = TRUE)
-x5<-mean(lala$gpa.3,na.rm = TRUE)
-x6<-mean(notlala$gpa.3,na.rm = TRUE)
-x7<-mean(lala$gpa.4,na.rm = TRUE)
-x8<-mean(notlala$gpa.4,na.rm = TRUE)
-ttt<-matrix(c(1,2,3,4,1,2,3,4,x1,x3,x5,x7,x2,x4,x6,x8,1,1,1,1,0,0,0,0), nrow =8 , ncol = 3)
-ttt<-as.data.frame(ttt)
+再來想看看是不是參加啦啦隊的同學，原本成績就比較好，找了學測成績來作為初始能力的評判，首先先把學測成績匯入
 
-colnames(ttt)<-c("grade","gpa","lala")
-ttt$lala<-as.logical(ttt$lala)
-ggplot(ttt, aes(x = grade, y = gpa, colour = lala)) + geom_line()
+```{r,message=FALSE,warning=FALSE}
 
+指100<- read_excel("~/Dropbox/Data/100學年度後學測、指考成績/指考/100指考錄取生資料檔.xls")
+
+指100<-指100[,c('考生姓名','學測總分')]
+colnames(指100)<-c("name","aaa")
+eco100<-left_join(eco100,指100,by='name')
+#因為有兩個游雅婷同學，而經濟系那個同學64級分，故留下64級分的資料就好
+eco100<-eco100[-c(80),]
+
+申100<- read_excel("~/Dropbox/Data/100學年度後學測、指考成績/繁星、個人申請/100個人申請錄取生資料檔.xls")
+申100<-申100[,c('姓名','學測總分')]
+colnames(申100)<-c("name","bbb")
+eco100<-left_join(eco100,申100,by='name')
+
+繁100 <- read_excel("~/Dropbox/Data/100學年度後學測、指考成績/繁星、個人申請/100繁星推薦錄取生資料檔.xls")
+繁100<-繁100[,c('姓名','學測總分')]
+colnames(繁100)<-c("name","ccc")
+eco100<-left_join(eco100,繁100,by='name')
+
+#把na值設為0,再加起來只要是0就代表原本是na
+
+
+eco100$aaa[is.na(eco100$aaa)]=0
+eco100$bbb[is.na(eco100$bbb)]=0
+eco100$ccc[is.na(eco100$ccc)]=0
+eco100$aaa[(eco100$aaa=="--")]=0
+eco100$aaa<-as.numeric(eco100$aaa)
+xent<-(eco100$aaa+eco100$bbb+eco100$ccc)
+mutate(eco100,ent=xent)->eco100
+```
+
+
+原本家庭經濟狀況較好的同學，可能因為家中給的資源較多，而成績原本就比較好，也因為經濟能力不錯，不用多花時間去打工，可以有空閑的時間參加啦啦隊，故把地址資料匯入，用區域的家庭平均所得來代表經濟狀況，欲將經濟狀況之影響控制住，其中所得是以101得度綜合所得稅的申報資料
+
+
+```{r,message=FALSE,warning=FALSE}
+
+load("~/Dropbox/Data/address.Rdata")
+address100<-address.data[,c('學號','10001通訊地址')]
+colnames(address100)<-c("ID","address")
+eco100<-left_join(eco100,address100,by='ID')
+#把不必要的資料刪除，稍微整理一下資料
+eco100<-eco100[,-c(14,15,16)]
+eco100$year[is.na(eco100$year)]=100
+eco100$year[eco100$year==101]=100
+eco100$department[is.na(eco100$department)]='經濟學系'
+earn<- read_excel("~/Dropbox/lala/台灣各區所得.xlsx")
+eco100<-left_join(eco100,earn,by='address')
 ```
 
 
 
 
+
+
+
+
+
+看一下參加啦啦隊的同學與沒參加啦啦隊的同學，家庭平均所得的分佈
+```{r,message=FALSE,warning=FALSE}
+eco100 %>% ggplot(aes(x=lala,y=earn))+
+  geom_boxplot()+
+  ggtitle('100有無參加lala家庭平均所得')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('lala')+
+  ylab('家庭平均所得')
+
+
+```
