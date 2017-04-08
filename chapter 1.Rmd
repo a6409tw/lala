@@ -380,7 +380,7 @@ gpa104 %>% ggplot(aes(x=lala,y=gpa))+
 ```{r,message=FALSE,warning=FALSE}
 gpa102 %>% ggplot(aes(x=經原上當,y=gpa))+
   geom_boxplot()+
-  ggtitle('102有無參加lala學生成績分佈')+
+  ggtitle('102學年經原上有無被當學生成績分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('經原上當')+
   ylab('平均成績')
@@ -390,7 +390,7 @@ gpa102 %>% ggplot(aes(x=經原上當,y=gpa))+
 ```{r,message=FALSE,warning=FALSE}
 gpa103 %>% ggplot(aes(x=經原上當,y=gpa))+
   geom_boxplot()+
-  ggtitle('103有無參加lala學生成績分佈')+
+  ggtitle('103學年經原上有無被當學生成績分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('經原上當')+
   ylab('平均成績')
@@ -402,7 +402,7 @@ gpa103 %>% ggplot(aes(x=經原上當,y=gpa))+
 ```{r,message=FALSE,warning=FALSE}
 gpa104 %>% ggplot(aes(x=經原上當,y=gpa))+
   geom_boxplot()+
-  ggtitle('104有無參加lala學生成績分佈')+
+  ggtitle('104學年經原上有無被當學生成績分佈')+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('經原上當')+
   ylab('平均成績')
@@ -552,12 +552,29 @@ eco100 %>% ggplot(aes(x=lala,y=gpa.4))+
   ylab('大四平均成績')
 
 ```
+
+想在同一張圖看100年度的同學，四個年級的成績變化
+
+```{r,message=FALSE,warning=FALSE}
+eco100 %>% group_by(lala) %>% #依lala分群
+  summarise(mean_grade.1=mean(gpa.1,na.rm=TRUE), #計算以下的mean特徵值
+            mean_grade.2=mean(gpa.2,na.rm=TRUE),
+            mean_grade.3=mean(gpa.3,na.rm=TRUE),
+            mean_grade.4=mean(gpa.4,na.rm=TRUE)) %>% 
+  gather(grade,mean_grade,-lala) -> mean.across.grades #把橫向格式轉成直向
+##作圖
+mean.across.grades$lala<-as.logical(mean.across.grades$lala)
+mean.across.grades %>% ggplot(aes(x=grade,y=mean_grade, fill=lala)) +
+  geom_bar(stat="identity",position='dodge')
+```
+
+
+
 再來想看看是不是參加啦啦隊的同學，原本成績就比較好，找了學測成績來作為初始能力的評判，首先先把學測成績匯入
 
 ```{r,message=FALSE,warning=FALSE}
 
 指100<- read_excel("~/Dropbox/Data/100學年度後學測、指考成績/指考/100指考錄取生資料檔.xls")
-
 指100<-指100[,c('考生姓名','學測總分')]
 colnames(指100)<-c("name","aaa")
 eco100<-left_join(eco100,指100,by='name')
@@ -607,13 +624,9 @@ eco100<-left_join(eco100,earn,by='address')
 
 
 
+看一下參加啦啦隊的同學與沒參加啦啦隊的同學，家庭平均所得的分佈，意外的是參加啦啦隊的同學，家庭平均竟然較低，和當初想的不太一樣。
 
 
-
-
-
-
-看一下參加啦啦隊的同學與沒參加啦啦隊的同學，家庭平均所得的分佈
 ```{r,message=FALSE,warning=FALSE}
 eco100 %>% ggplot(aes(x=lala,y=earn))+
   geom_boxplot()+
@@ -622,5 +635,24 @@ eco100 %>% ggplot(aes(x=lala,y=earn))+
   xlab('lala')+
   ylab('家庭平均所得')
 
+```
+
+看一下參加啦啦隊的同學與沒參加啦啦隊的同學，學測成績的分佈，有參加啦啦隊的同學，學測成績確實較高，表示有可能參加啦啦隊的同學成績原本就比較好了。
+
+```{r,message=FALSE,warning=FALSE}
+eco100 %>% ggplot(aes(x=lala,y=ent))+
+  geom_boxplot()+
+  ggtitle('100有無參加lala學測成績分布')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('lala')+
+  ylab('平均學測成績')
 
 ```
+
+
+再來想匯入是否為明星高中畢業的資料，
+
+
+
+
+
