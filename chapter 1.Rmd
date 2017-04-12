@@ -21,14 +21,14 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(readxl)
-working.path<-"~/Dropbox/lala/"
+working.path<-"~/Desktop/dropbox/lala/"
 save.data<-paste(working.path,'eco100.rds')
 #load student ability data
-load("~/Dropbox/Data/ student ability.Rdata")
+load("~/Desktop/Dropbox/Github/IR-research/Data/ student ability.Rdata")
 #load registration data
-load("~/Dropbox/Data/registration.Rdata")
+load("~/Desktop/Dropbox/Github/IR-research/Data/registration.Rdata")
 #load lala data
-lala100<- read_excel("~/Dropbox/lala/100lalaecon.xlsx")
+lala100<- read_excel("~/Desktop/Dropbox/lala/100lalaecon.xlsx")
 #留下學號及中文姓名
 regisdata100<-registration.data[,c('學號','10001中文姓名')]
 #留下100學年入學的同學姓名與學號
@@ -101,7 +101,7 @@ eco100 %>% ggplot(aes(x=lala,y=ab))+
 
 ```{r,message=FALSE,warning=FALSE}
 #先從原始成績找出經原上被當的同學，經原下被當的同學與原本的資料做合併
-load("~/Dropbox/Data/transcript.Rdata")
+load("~/Desktop/Dropbox/Github/IR-research/Data/transcript.Rdata")
 
 colnames(transcript.data)[1]<-'ID'
 pecon.track<-c()
@@ -168,8 +168,8 @@ eco100 %>% ggplot(aes(x=經原下當,y=cum.gpa))+
 先把102年、103年、104年參加啦啦隊的資料和學號做對照合併，在找出三年中經原上被當的同學，經原下被當的同學
 
 ```{r,message=FALSE,warning=FALSE}
-econ102_104<-read_excel("~/dropbox/lala/econ102_104.xlsx")
-load("~/Dropbox/Data/registration.Rdata")
+econ102_104<-read_excel("~/Desktop/dropbox/lala/econ102_104.xlsx")
+load("~/Desktop/Dropbox/Github/IR-research/Data/registration.Rdata")
 regisdataecon<-registration.data[,c('學號','10402中文姓名')]
 colnames(regisdataecon)<-c('ID','name')
 merge1111<-full_join(regisdataecon,econ102_104,by='name')
@@ -218,7 +218,7 @@ eco102_104$經原下當<-as.logical(eco102_104$經原下當)
 
 
 ```{r,message=FALSE,warning=FALSE}
-load("~/Dropbox/Data/transcript.Rdata")
+load("~/Desktop/Dropbox/Github/IR-research/Data/transcript.Rdata")
 econ.subject<-c("金融市場（一）",
                 "金融市場（二）",
                 "金融實務（一）",
@@ -411,11 +411,11 @@ gpa104 %>% ggplot(aes(x=經原上當,y=gpa))+
 
 ```{r,message=FALSE,warning=FALSE}
 
-load("~/Dropbox/Data/ student ability.Rdata")
+load("~/Desktop/Dropbox/Github/IR-research/Data/ student ability.Rdata")
 
-load("~/Dropbox/Data/registration.Rdata")
+load("~/Desktop/Dropbox/Github/IR-research/Data/registration.Rdata")
 
-load("~/Dropbox/Data/transcript.Rdata")
+load("~/Desktop/Dropbox/Github/IR-research/Data/transcript.Rdata")
 
 library(dplyr)
 transcript.data<-tbl_df(transcript.data)
@@ -424,7 +424,7 @@ x1<-dataeconomy$學分數*dataeconomy$成績
 mutate(dataeconomy,加權=x1)->dataeconomy
 only100<-dplyr::filter(dataeconomy,dataeconomy$學年=="100")
 library(readr)
-load("~/Dropbox/lala/ eco100.rds")
+load("~/Desktop/dropbox/lala/ eco100.rds")
 gpa.track100<-c()
 for(i in 1:144){
   #print(i)
@@ -456,7 +456,7 @@ eco100 %>% ggplot(aes(x=lala,y=gpa.1))+
 ```{r,message=FALSE,warning=FALSE}
 only101<-dplyr::filter(dataeconomy,dataeconomy$學年=="101")
 library(readr)
-load("~/Dropbox/lala/ eco100.rds")
+load("~/Desktop/dropbox/lala/ eco100.rds")
 
 gpa.track101<-c()
 for(i in 1:144){
@@ -574,19 +574,22 @@ mean.across.grades %>% ggplot(aes(x=grade,y=mean_grade, fill=lala)) +
 
 ```{r,message=FALSE,warning=FALSE}
 
-指100<- read_excel("~/Dropbox/Data/100學年度後學測、指考成績/指考/100指考錄取生資料檔.xls")
+指100<- read_excel("~/Desktop/Dropbox/Github/IR-research/Data/100學年度後學測、指考成績/指考/100指考錄取生資料檔.xls")
+X100指考錄取生資料檔 <- read_excel("~/Desktop/Dropbox/Github/IR-research/Data/100學年度後學測、指考成績/指考/100指考錄取生資料檔.xls")
+X100指考錄取生資料檔 <- read_excel("~/Desktop/Dropbox/Github/IR-research/Data/100學年度後學測、指考成績/指考/100指考錄取生資料檔.xlsx")
+
 指100<-指100[,c('考生姓名','學測總分')]
 colnames(指100)<-c("name","aaa")
 eco100<-left_join(eco100,指100,by='name')
 #因為有兩個游雅婷同學，而經濟系那個同學64級分，故留下64級分的資料就好
 eco100<-eco100[-c(80),]
 
-申100<- read_excel("~/Dropbox/Data/100學年度後學測、指考成績/繁星、個人申請/100個人申請錄取生資料檔.xls")
+申100<- read_excel("~/Desktop/Dropbox/Github/IR-research/Data/100學年度後學測、指考成績/繁星、個人申請/100個人申請錄取生資料檔.xls")
 申100<-申100[,c('姓名','學測總分')]
 colnames(申100)<-c("name","bbb")
 eco100<-left_join(eco100,申100,by='name')
 
-繁100 <- read_excel("~/Dropbox/Data/100學年度後學測、指考成績/繁星、個人申請/100繁星推薦錄取生資料檔.xls")
+繁100 <- read_excel("~/Desktop/Dropbox/Github/IR-research/Data/100學年度後學測、指考成績/繁星、個人申請/100繁星推薦錄取生資料檔.xls")
 繁100<-繁100[,c('姓名','學測總分')]
 colnames(繁100)<-c("name","ccc")
 eco100<-left_join(eco100,繁100,by='name')
@@ -609,7 +612,7 @@ mutate(eco100,ent=xent)->eco100
 
 ```{r,message=FALSE,warning=FALSE}
 
-load("~/Dropbox/Data/address.Rdata")
+load("~/Desktop/Dropbox/Github/IR-research/Data/address.Rdata")
 address100<-address.data[,c('學號','10001通訊地址')]
 colnames(address100)<-c("ID","address")
 eco100<-left_join(eco100,address100,by='ID')
@@ -618,7 +621,7 @@ eco100<-eco100[,-c(14,15,16)]
 eco100$year[is.na(eco100$year)]=100
 eco100$year[eco100$year==101]=100
 eco100$department[is.na(eco100$department)]='經濟學系'
-earn<- read_excel("~/Dropbox/lala/台灣各區所得.xlsx")
+earn<- read_excel("~/Desktop/dropbox/lala/台灣各區所得.xlsx")
 eco100<-left_join(eco100,earn,by='address')
 ```
 
