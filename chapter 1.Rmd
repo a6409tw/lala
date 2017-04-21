@@ -682,6 +682,32 @@ pecon1112 %>% ggplot(aes(x=lala,y=cum.gpa))+
 
 ```
 
+```{r,message=FALSE,warning=FALSE}
+pecon111%>% group_by(lala) %>% #依lala分群
+  summarise(mean_grade.1=mean(gpa.1,na.rm=TRUE), #計算以下的mean特徵值
+            mean_grade.2=mean(gpa.2,na.rm=TRUE),
+            mean_grade.3=mean(gpa.3,na.rm=TRUE),
+            mean_grade.4=mean(gpa.4,na.rm=TRUE)) %>% 
+  gather(grade,mean_grade,-lala) -> mean.across.grades.pecon111 #把橫向格式轉成直向
+##作圖
+mean.across.grades.pecon111$lala<-as.logical(mean.across.grades.pecon111$lala)
+mean.across.grades.pecon111 %>% ggplot(aes(x=grade,y=mean_grade, fill=lala)) +
+  geom_bar(stat="identity",position='dodge')
+
+
+```
+```{r,message=FALSE,warning=FALSE}
+pecon1112%>% group_by(lala) %>% #依lala分群
+  summarise(mean_grade.1=mean(gpa.1,na.rm=TRUE), #計算以下的mean特徵值
+            mean_grade.2=mean(gpa.2,na.rm=TRUE),
+            mean_grade.3=mean(gpa.3,na.rm=TRUE),
+            mean_grade.4=mean(gpa.4,na.rm=TRUE)) %>% 
+  gather(grade,mean_grade,-lala) -> mean.across.grades.pecon1112 #把橫向格式轉成直向
+##作圖
+mean.across.grades.pecon1112$lala<-as.logical(mean.across.grades.pecon1112$lala)
+mean.across.grades.pecon1112 %>% ggplot(aes(x=grade,y=mean_grade, fill=lala)) +
+  geom_bar(stat="identity",position='dodge')
+```
 再來想匯入是否為明星高中畢業的資料，
 
 
