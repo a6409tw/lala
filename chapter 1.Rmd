@@ -45,7 +45,8 @@ merge100[lala.na.location,c('lala')]<-0
 
 ```{r}
 #樣本個數觀察
-table(merge100$lala)
+table(merge100$lala)->tb.lala
+tb.lala
 ```
 
 
@@ -68,9 +69,9 @@ eco100$lala<-as.logical(eco100$lala)
 ```
 
 
-首先我們可以先將100年度的學生以是否參加啦啦隊作為分成兩群，觀察這兩群樣本的四年平均成績的差異可以得到下圖，原本的想法是有參加啦啦隊的同學會因為忙於課外活動，導致花比較少心思在課程中，理當使得成績有比較差的表現，但卻發現有參加啦啦隊的平均成績卻是較高的，與我最初的想法相左，看到這樣的結果，最直接的想法是參加啦啦隊後，會使得大家感情變好，一起唸書、一起討論，成績反而因此更好了，又或者可能原本就是成績不錯的同學，因為可以兼顧課外活動，而選擇參加啦啦隊，再者可以看到有參加啦啦隊的平均成績離散度較小，這也是會令人想到可能他們的讀書方法相近。
+首先我們可以先將100年度的學生以是否參加啦啦隊作為分成兩群，觀察這兩群樣本的四年平均成績的差異可以得到下圖，原本的想法是有參加啦啦隊的同學會因為忙於課外活動，導致花比較少心思在課程中，理當使得成績有比較差的表現，但卻發現有參加啦啦隊的平均成績卻是較高的，與我最初的想法相左，看到這樣的結果，最直接的想法是參加啦啦隊後，會使得大家感情變好，一起唸書、一起討論，成績反而因此更好了*此為參加啦啦隊的直接效果*，又或者可能原本就是成績不錯的同學，因為可以兼顧課外活動，而選擇參加啦啦隊*此為遺漏背景因素所造成的啦啦隊效果估計偏誤*，再者可以看到有參加啦啦隊的平均成績離散度較小，這也是會令人想到可能他們的讀書方法相近*進一步去計算兩群人的修課內容相近度*。
 
-
+*描述兩群的mean與standard deviation*
 ```{r, message=FALSE, warning=FALSE}
 # 圖： 平均成績與lala
 eco100 %>% ggplot(aes(x=lala,y=cum.gpa))+
@@ -79,6 +80,11 @@ eco100 %>% ggplot(aes(x=lala,y=cum.gpa))+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('lala')+
   ylab('平均成績')
+library(dplyr)
+library(psych)
+describe(eco100)
+table(eco100$lala)
+eco100 %>% group_by(lala) %>% summarise(mean(cum.gpa,na.rm=TRUE),sd(cum.gpa,na.rm=TRUE),median(cum.gpa,na.rm=TRUE))
 ```
 
 
@@ -97,7 +103,7 @@ eco100 %>% ggplot(aes(x=lala,y=ab))+
 ## 啦啦對於經原
 因為經濟系的基礎為大一的經濟學原理，本系的學生若在大一上被當掉經原，會在大二時擋修個體經濟學，倘若在大一下被當掉經原，會在大二時擋修總體經濟學，故大一的經濟學原理被當與否對本系學生未來的修課選擇會有重大影響，甚至四年的平均成績，經濟能力都會受之影響故在資料中先找出大一上經原被當的同學以及大一下經原被當的同學，看看他們四年的成績表現差異。
 
-從資料中可以發現上學期有五個同學經原被當但他們都沒參加啦啦隊，也就是說參加啦啦隊的同學沒有任何人上學期的經原被當掉，上學期有十二個同學經原被當，其中有兩個被當的同學有參加啦啦隊
+從資料中可以發現上學期有五個同學經原被當但他們都沒參加啦啦隊，也就是說參加啦啦隊的同學沒有任何人上學期的經原被當掉; 也就是說參加啦啦隊的學生有0%的人經原上學期被當，而沒有參加啦啦隊的人有4.3%被當。而下學期有十二個同學經原被當，其中有兩個被當的同學有參加啦啦隊；也就是說參加啦啦隊的學生有7.4%的人經原上學期被當，而沒有參加啦啦隊的人有8.5%被當。
 
 ```{r,message=FALSE,warning=FALSE}
 #先從原始成績找出經原上被當的同學，經原下被當的同學與原本的資料做合併
@@ -134,9 +140,12 @@ colnames(pecon.track2)<-c('ID','經原上當','經原下當')
 eco100<-full_join(eco100,pecon.track2,by='ID')
 eco100$經原上當<-as.logical(eco100$經原上當)
 eco100$經原下當<-as.logical(eco100$經原下當)
+eco100 %>% group_by(經原上當, 經原下當, lala) %>% summarise(n())
+eco100 %>% group_by(lala) %>% summarise(p.經原上當=sum(經原上當,na.rm=TRUE)/n(),p.經原下當=sum(經原下當, na.rm=TRUE)/n())
 ```
 
 下圖是100學年經原上被當與否的四年平均成績差異，可以發現經原上被當的同學之四年成績比沒被當的低很多，且被當掉的同學成績離散程度很大。
+*經原上下被當要一起描述*
 
 ```{r,message=FALSE,warning=FALSE}
 
@@ -146,6 +155,12 @@ eco100 %>% ggplot(aes(x=經原上當,y=cum.gpa))+
   theme(text = element_text(family = 'STSongti-TC-Light'))+
   xlab('經原上被當')+
   ylab('平均成績')
+
+eco100 %>% group_by(經原上當, 經原下當) %>%
+  summarise(m.cumgpa=mean(cum.gpa,na.rm=TRUE),sd.cumgpa=sd(cum.gpa),numb=n()) %>% na.omit()
+
+eco100 %>% group_by((經原上當 | 經原下當)) %>%
+  summarise(m.cumgpa=mean(cum.gpa,na.rm=TRUE),sd.cumgpa=sd(cum.gpa),numb=n()) %>% na.omit()
 
 ```
 
@@ -163,7 +178,7 @@ eco100 %>% ggplot(aes(x=經原下當,y=cum.gpa))+
 ```
 
 
-是否參加啦啦經原比較會被當？不同學年入學學生的反應是否有明顯不同？
+# 是否參加啦啦經原比較會被當？不同學年入學學生的反應是否有明顯不同？
 
 先把102年、103年、104年參加啦啦隊的資料和學號做對照合併，在找出三年中經原上被當的同學，經原下被當的同學
 
@@ -210,7 +225,7 @@ colnames(pecon.track22)<-c('ID','經原上當','經原下當')
 eco102_104<-full_join(econlala102_104,pecon.track22,by='ID')
 eco102_104$經原上當<-as.logical(eco102_104$經原上當)
 eco102_104$經原下當<-as.logical(eco102_104$經原下當)
-
+save(eco102_104,eco100,file = 'eco100_04.Rdata')
 ```
 
 
@@ -333,8 +348,7 @@ gpa.102_104$lala<-as.logical(gpa.102_104$lala)
 gpa102<-dplyr::filter(gpa.102_104,substring(gpa.102_104$ID,2,4)=="102")
 gpa103<-dplyr::filter(gpa.102_104,substring(gpa.102_104$ID,2,4)=="103")
 gpa104<-dplyr::filter(gpa.102_104,substring(gpa.102_104$ID,2,4)=="104")
-  
-
+save(gpa102,gpa103,gpa104,file='gpa.Rdata')  
 ```
 
 102學年度，參加啦啦隊與否的平均成績狀況，有參加啦啦隊的平均成績較高，離散程度較小
