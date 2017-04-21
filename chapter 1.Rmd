@@ -650,6 +650,38 @@ eco100 %>% ggplot(aes(x=lala,y=ent))+
 ```
 
 
+經原上沒被當的同學，有沒有參加啦啦隊，四年成績分布
+
+```{r,message=FALSE,warning=FALSE}
+pecon111<-filter(eco100,eco100$經原上當=="FALSE")
+pecon111 %>% ggplot(aes(x=lala,y=cum.gpa))+
+  geom_boxplot()+
+  ggtitle('100經原上無被當之參加lala與否成績分布')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('lala')+
+  ylab('gpa')
+
+
+
+
+```
+經原上被當的同學，有沒有參加啦啦隊，四年成績分布
+發現經原上被當的同學都沒有參加啦啦隊
+
+```{r,message=FALSE,warning=FALSE}
+pecon1112<-filter(eco100,eco100$經原上當=="TRUE")
+pecon1112 %>% ggplot(aes(x=lala,y=cum.gpa))+
+  geom_boxplot()+
+  ggtitle('100經原上無被當之參加lala與否成績分布')+
+  theme(text = element_text(family = 'STSongti-TC-Light'))+
+  xlab('lala')+
+  ylab('gpa')
+
+
+
+
+```
+
 再來想匯入是否為明星高中畢業的資料，
 
 
